@@ -5,7 +5,7 @@ This Folder Action handler is triggered whenever items are added to the attached
 The script organizes the added files into a folder hierarchy that follows the following structure:
 YYYY/M/D
 Where YYYY is four-digit year, M is month and D is the day.
-Copyright © 2010 Omar Abdel-Wahab <owahab@gmail.com>.
+Copyright Â© 2010 Omar Abdel-Wahab <owahab@gmail.com>.
 You may not incorporate this code into your program(s) without
 a written permission from the author but you're free to use it AS IS
 with absolutely no warranty from the author.
@@ -45,6 +45,14 @@ on adding folder items to this_folder after receiving added_items
 				if (the name extension of the item_info is not in the silent_extensions_list) then
 					set the flag to true
 				end if
+				-- Check if file size is stable
+				set prev_size to 0
+				set current_size to size of (get info for this_item)
+				repeat until prev_size = current_size
+					delay 5 -- delay for 5 seconds
+					set prev_size to current_size
+					set current_size to size of (get info for this_item)
+				end repeat
 				move this_item to target_folder with replacing
 				set the message to "Moved file '" & (the name of the item_info as string) & "' to folder '" & (the POSIX path of (target_folder as string)) & "'." as string
 				my growl_message("Download Organizer", message)
@@ -71,15 +79,3 @@ on adding folder items to this_folder after receiving added_items
 		*)
 	end try
 end adding folder items to
-on growl_message(title, body)
-	try
-		tell application "GrowlHelperApp"
-			set the msg_title to title as string
-			set the msg_body to body as string
-			set the allNotificationsList to {"Download Organizer"}
-			set the enabledNotificationsList to {"Download Organizer"}
-			register as application "Growl Download Organizer AppleScript" all notifications allNotificationsList default notifications enabledNotificationsList
-			notify with name "Download Organizer" title msg_title description msg_body application name "Growl Download Organizer AppleScript" icon of application "Script Editor.app"
-		end tell
-	end try
-end growl_message
